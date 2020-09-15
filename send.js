@@ -1,40 +1,23 @@
 const axios = require("axios");
 
-axios({
-  "method": "POST",
-  "url": "https://rapidprod-sendgrid-v1.p.rapidapi.com/mail/send",
-  "headers": {
-    "content-type": "application/json",
-    "x-rapidapi-host": "rapidprod-sendgrid-v1.p.rapidapi.com",
-    "x-rapidapi-key": "8049...5c7",
-    "accept": "application/json",
-    "useQueryString": true
-  },
-  "data": {
-    "personalizations": [
-      {
-        "to": [
-          {
-            "email": "Phil.N.Your@gmail.com"
-          }
-        ],
-        "subject": "Hello, World!"
-      }
-    ],
-    "from": {
-      "email": "from_address@example.com"
-    },
-    "content": [
-      {
-        "type": "text/plain",
-        "value": "Hello, World!"
-      }
-    ]
+module.exports = async function (config) {
+  try {
+    const r = await axios(config);
+    return `${r.status} (${r.statusText}) emails remaining: ${r.headers['x-ratelimit-emails-remaining']}`
   }
-})
-.then((response)=>{
-  console.log(response.status, response.statusText, response.headers)
-})
-.catch((error)=>{
-  console.log(error)
-})
+  catch (error) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.log(error.response.status, error.response.data.message)
+      console.log('Response', error.response.headers)
+      console.log('Request', error.config)
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log(error.request)
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log(error)
+    }
+  }
+}
